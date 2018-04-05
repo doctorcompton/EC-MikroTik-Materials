@@ -1,0 +1,27 @@
+{
+	# ============================================
+	# set two variables
+	# filename: self explanatory
+	# IPs: the total number of IPs in address list
+	# ============================================
+	
+	:global filename "IPlist"
+	:local numIPs [:len [/ip firewall address-list find]]
+	
+	# ==========================
+	# make the file and clear it
+	# ==========================
+	
+	/file print file=$filename
+	:delay 1
+	/file set $filename contents=""
+	
+	# =======================================================================
+	# iterate current total of IPs, print to console, and concatenate to file
+	# =======================================================================
+	
+	:for k from=0 to={ ($numIPs - 1) } step=1 do={ \
+		:put [/ip firewall address-list get number=$k value-name=address]; \
+		/file set $filename contents=([/file get $filename contents] . \
+		[/ip firewall address-list get number=$k value-name=address] . "\n"); }
+}
