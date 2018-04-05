@@ -1,0 +1,37 @@
+{
+	# ============================================
+	# set some variables
+	# filename: self explanatory
+	# IPs: the total number of IPs in address list
+	# sysname: current hostname of router
+	# datetime: the current date and time...
+	# ============================================
+	
+	:global filename "IPlist"
+	:local numIPs [:len [/ip firewall address-list find]]
+	:global sysname [/system identity get name]
+	:global datetime "$[/system clock get date] $[/system clock get time]"
+	
+	# ==========================
+	# make the file and clear it
+	# ==========================
+	
+	/file print file=$filename
+	:delay 1
+	/file set $filename contents="7-Day Address List of Assholes\n==============================\n"
+	
+	# =======================================================================
+	# iterate current total of IPs, print to console, and concatenate to file
+	# =======================================================================
+	
+	:for k from=0 to={ ($numIPs - 1) } step=1 do={ \
+		:put [/ip firewall address-list get number=$k value-name=address]; \
+		/file set $filename contents=([/file get $filename contents] . \
+		[/ip firewall address-list get number=$k value-name=address] . "\n"); }
+		
+	# ==========================================================
+	# finally, send an email with the address list as attachment
+	# ==========================================================
+	:delay 3
+	/tool e-mail send to="<REDACTED, YOUR EMAIL HERE>" subject="$[/system identity get name] asshole address list" file=($filename . ".txt") body="$sysname \n $datetime \n Currently banned IP addresses, maximum of 7 days. Contains scriptkiddies trying to bruteforce SSH and Telnet. \n This is the asshole list.";
+}
