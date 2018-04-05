@@ -1,0 +1,6 @@
+:local sysname [/system identity get name]
+:local datetime "$[/system clock get date] $[/system clock get time]"
+
+/system backup save name="$sysname";
+/tool e-mail send to="<REDACTED, YOUR EMAIL GOES HERE>" subject=([/system identity get name]." backup") file="$sysname.backup" body="$sysname \n $datetime \n Backup completed.";
+:log info "Backup e-mail sent.";
